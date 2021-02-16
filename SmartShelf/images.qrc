@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/bluetooth-logo.jpg</file>
+        <file>icons/shelf-logo.png</file>
+    </qresource>
+</RCC>
