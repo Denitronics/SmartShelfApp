@@ -11,7 +11,10 @@ ApplicationWindow {
     title: qsTr("")
     color: "lightskyblue"
 
+    property string screenName: "Home screen"
+
     RowLayout {
+        id: menuButtons
         Layout.preferredHeight: mainWindow.height / 10
         Layout.fillWidth: true
 
@@ -21,6 +24,7 @@ ApplicationWindow {
             text: "Home"
             onClicked: {
                 stackLayoutApp.currentIndex = 0
+                screenName = qsTr("Home screen")
             }
         }
 
@@ -28,6 +32,7 @@ ApplicationWindow {
             text: "Search"
             onClicked: {
                 stackLayoutApp.currentIndex = 1
+                screenName = qsTr("Search for SmartShelf")
             }
         }
 
@@ -35,6 +40,7 @@ ApplicationWindow {
             text: "About"
             onClicked: {
                 stackLayoutApp.currentIndex = 2
+                screenName = qsTr("About")
             }
         }
     }
@@ -44,7 +50,7 @@ ApplicationWindow {
         id: stackLayoutApp
         width: mainWindow.width
         height: mainWindow.height * 9 / 10
-        //anchors.verticalCenterOffset: - mainWindow.height / 10
+        anchors.top: menuButtons.bottom
 
         Item {
 
@@ -74,15 +80,19 @@ ApplicationWindow {
 
                 font.pointSize: 30
             }
+
         }
 
-        Item {
+        Rectangle {
             id: searchDevicesScreen
 
             width: mainWindow.width
             height: mainWindow.height * 9 / 10
 
-            anchors.verticalCenterOffset: mainWindow.height / 10
+            //anchors.verticalCenterOffset: mainWindow.height / 10
+
+            border.color: "black"
+            color: "transparent"
         }
 
         Item {
@@ -102,7 +112,6 @@ ApplicationWindow {
                     height: mainWindow.height / 10
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
-                    //anchors.centerIn: homeScreen
 
                     color: "black"
                     text: "Application: SmartShelf"
@@ -118,9 +127,6 @@ ApplicationWindow {
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
 
-                    //anchors.centerIn: homeScreen
-                    //anchors.verticalCenterOffset: logoImage.height * 5 / 6
-
                     color: "black"
                     text: "Version: 0.1"
 
@@ -133,8 +139,7 @@ ApplicationWindow {
 
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
-                    //anchors.centerIn: homeScreen
-                    //anchors.verticalCenterOffset: logoImage.height * 5 / 6
+
                     color: "black"
                     text: "Author: Denislav Trifonov"
 
@@ -142,6 +147,22 @@ ApplicationWindow {
                 }
             }
         }
+    }
+
+    // Footer - screen name
+
+    Text {
+        id: footerText
+
+        width: homeScreen.width
+        height: mainWindow.height / 10
+        font.bold: true
+        horizontalAlignment: Text.AlignHCenter
+
+        anchors.bottom: parent.bottom
+
+        text: screenName
+        font.pointSize: 20
     }
 }
 
