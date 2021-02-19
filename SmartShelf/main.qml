@@ -1,46 +1,72 @@
-import QtQuick 2.12
-import QtQuick.Window 2.12
-import QtQuick.Controls 2.12
-import QtQuick.Layouts 1.12
+//import QtQuick 2.12
+import QtQuick 2.5
+import QtQuick.Window 2.3
+import QtQuick.Controls 2.2
+import QtQuick.Layouts 1.3
 
 ApplicationWindow {
     id: mainWindow
     visible: true
-    width: 300
+    width: 320
     height: 600
     title: qsTr("")
     color: "lightskyblue"
 
+    flags: Qt.FramelessWindowHint // remove title bar from the application
+
     property string screenName: "Home screen"
+    property string textsColor: "gray"
+    property string bordersColor: "gray"
+    property int headerFooterSize: height / 15
 
     RowLayout {
         id: menuButtons
-        Layout.preferredHeight: mainWindow.height / 10
+
+        height: mainWindow.height / 15
         Layout.fillWidth: true
 
         spacing: 1
 
         Button {
+            Layout.fillHeight: true
+            Layout.preferredWidth: mainWindow.width / 4
+
             text: "Home"
             onClicked: {
                 stackLayoutApp.currentIndex = 0
                 screenName = qsTr("Home screen")
-            }
+            }           
         }
 
         Button {
-            text: "Search"
+            Layout.fillHeight: true
+            Layout.preferredWidth: mainWindow.width / 4
+
+            text: "Connect"
             onClicked: {
                 stackLayoutApp.currentIndex = 1
-                screenName = qsTr("Search for SmartShelf")
-            }
+                screenName = qsTr("Connect with SmartShelf")
+            }            
         }
 
         Button {
+            Layout.fillHeight: true
+            Layout.preferredWidth: mainWindow.width / 4
+
             text: "About"
             onClicked: {
                 stackLayoutApp.currentIndex = 2
-                screenName = qsTr("About")
+                screenName = qsTr("Information")
+            }
+        }
+
+        Button {
+            Layout.fillHeight: true
+            Layout.preferredWidth: mainWindow.width / 4
+
+            text: "Exit"
+            onClicked: {
+                Qt.quit()
             }
         }
     }
@@ -49,7 +75,7 @@ ApplicationWindow {
 
         id: stackLayoutApp
         width: mainWindow.width
-        height: mainWindow.height * 9 / 10
+        height: mainWindow.height - (2 * headerFooterSize)
         anchors.top: menuButtons.bottom
 
         Item {
@@ -65,7 +91,7 @@ ApplicationWindow {
                 id: logoImage
                 anchors.centerIn: homeScreen
                 anchors.verticalCenterOffset: - height / 5
-                source: "icons/shelf-logo.png"
+                source: "icons/shelf-logo.jpg"
             }
 
             Text {
@@ -74,8 +100,8 @@ ApplicationWindow {
                 font.bold: true
                 horizontalAlignment: Text.AlignHCenter
                 anchors.centerIn: homeScreen
-                anchors.verticalCenterOffset: logoImage.height * 5 / 6
-                color: "black"
+                anchors.verticalCenterOffset: logoImage.height / 2
+                color: textsColor
                 text: "Smart Shelf"
 
                 font.pointSize: 30
@@ -86,83 +112,113 @@ ApplicationWindow {
         Rectangle {
             id: searchDevicesScreen
 
-            width: mainWindow.width
-            height: mainWindow.height * 9 / 10
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
-            //anchors.verticalCenterOffset: mainWindow.height / 10
-
-            border.color: "black"
+            border.color: bordersColor
             color: "transparent"
         }
 
         Item {
             id: appInfoScreen
 
-            width: mainWindow.width
-            height: mainWindow.height * 9 / 10
+            Layout.fillHeight: true
+            Layout.fillWidth: true
 
-            ColumnLayout {
+            Rectangle {
 
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+                id: infoText
+                width: appInfoScreen.width - 2 * footer.height
+                height: appInfoScreen.height / 4
+                anchors.centerIn: appInfoScreen
+                anchors.verticalCenterOffset: - height
 
-                Text {
+                border.color: bordersColor
+                color: "transparent"
 
-                    width: homeScreen.width
-                    height: mainWindow.height / 10
-                    font.bold: true
-                    horizontalAlignment: Text.AlignHCenter
+                ColumnLayout {
 
-                    color: "black"
-                    text: "Application: SmartShelf"
+                    id: layoutAppInfo
+                    anchors.fill: infoText
 
-                    font.pointSize: 10
-                }
+                    Text {
+                        width: layoutAppInfo.width
+                        height: layoutAppInfo.height / 4
+                        font.bold: true
 
-                Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
 
-                    width: homeScreen.width
-                    height: mainWindow.height / 10
+                        color: textsColor
+                        text: "Application: SmartShelf"
 
-                    font.bold: true
-                    horizontalAlignment: Text.AlignHCenter
+                        font.pointSize: 10
+                    }
 
-                    color: "black"
-                    text: "Version: 0.1"
+                    Text {
+                        width: layoutAppInfo.width
+                        height: layoutAppInfo.height / 4
+                        font.bold: true
 
-                    font.pointSize: 10
-                }
+                        anchors.horizontalCenter: parent.horizontalCenter
 
-                Text {
-                    width: homeScreen.width
-                    height: mainWindow.height / 10
+                        color: textsColor
+                        text: "Author: Denislav Trifonov"
 
-                    font.bold: true
-                    horizontalAlignment: Text.AlignHCenter
+                        font.pointSize: 10
+                    }
 
-                    color: "black"
-                    text: "Author: Denislav Trifonov"
+                    Text {
+                        width: layoutAppInfo.width
+                        height: layoutAppInfo.height / 4
+                        font.bold: true
 
-                    font.pointSize: 10
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        color: textsColor
+                        text: "Technology: Bluetooth 4.2"
+
+                        font.pointSize: 10
+                    }
+
+                    Text {
+                        width: layoutAppInfo.width
+                        height: layoutAppInfo.height / 4
+                        font.bold: true
+
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        color: textsColor
+                        text: "Version: 0.1"
+
+                        font.pointSize: 10
+                    }
                 }
             }
         }
     }
 
     // Footer - screen name
-
-    Text {
-        id: footerText
+    Rectangle {
+        id: footer
 
         width: homeScreen.width
-        height: mainWindow.height / 10
-        font.bold: true
-        horizontalAlignment: Text.AlignHCenter
-
+        height: mainWindow.height / 15
         anchors.bottom: parent.bottom
 
-        text: screenName
-        font.pointSize: 20
+        color: "lightgray"
+
+        Text {
+            id: footerText
+
+            font.bold: true
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            anchors.fill: parent
+
+            text: screenName
+            color: textsColor
+            font.pointSize: 15
+        }
     }
 }
 
