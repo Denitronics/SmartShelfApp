@@ -109,14 +109,8 @@ ApplicationWindow {
 
         }
 
-        Rectangle {
-            id: searchDevicesScreen
-
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            border.color: bordersColor
-            color: "transparent"
+        BLESearch {
+            id: bleSearch
         }
 
         Item {

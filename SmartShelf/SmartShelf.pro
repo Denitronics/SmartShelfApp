@@ -33,4 +33,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    icons/bluetooth-logo.jpg
+    icons/bluetooth-logo.jpg \
+    BLESearch.qml
