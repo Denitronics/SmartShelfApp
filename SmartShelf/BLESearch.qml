@@ -6,8 +6,8 @@ import QtQuick.Layouts 1.3
 Item {
 
     id: windowSearchBLE
-    width: parent.width
-    height: parent.height
+    Layout.fillHeight: true
+    Layout.fillWidth: true
 
     ColumnLayout {
 
@@ -16,20 +16,20 @@ Item {
         spacing: 0
 
         TextEdit {
-            width: parent.width
-            height: parent.height / 2
 
-            anchors.horizontalCenter: parent.horizontalCenter
+            Layout.preferredWidth: parent.width
+            Layout.preferredHeight: parent.height / 2
+            Layout.alignment: Qt.AlignHCenter
 
             text: "Test"
         }
 
         RowLayout {
 
-            width: parent.width
-            height: parent.height / 2
+            Layout.preferredWidth: parent.width
+            Layout.preferredHeight: parent.height / 2
+            Layout.alignment: Qt.AlignHCenter
 
-            anchors.horizontalCenter: parent.horizontalCenter
             spacing: 10
 
             RoundButton {

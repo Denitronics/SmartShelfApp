@@ -12,7 +12,7 @@ ApplicationWindow {
     title: qsTr("")
     color: "lightskyblue"
 
-    flags: Qt.FramelessWindowHint // remove title bar from the application
+    //flags: Qt.FramelessWindowHint // remove title bar from the application
 
     property string screenName: "Home screen"
     property string textsColor: "gray"
@@ -113,81 +113,8 @@ ApplicationWindow {
             id: bleSearch
         }
 
-        Item {
+        AppInfo {
             id: appInfoScreen
-
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-
-            Rectangle {
-
-                id: infoText
-                width: appInfoScreen.width - 2 * footer.height
-                height: appInfoScreen.height / 4
-                anchors.centerIn: appInfoScreen
-                anchors.verticalCenterOffset: - height
-
-                border.color: bordersColor
-                color: "transparent"
-
-                ColumnLayout {
-
-                    id: layoutAppInfo
-                    anchors.fill: infoText
-
-                    Text {
-                        width: layoutAppInfo.width
-                        height: layoutAppInfo.height / 4
-                        font.bold: true
-
-                        anchors.horizontalCenter: parent.horizontalCenter
-
-                        color: textsColor
-                        text: "Application: SmartShelf"
-
-                        font.pointSize: 10
-                    }
-
-                    Text {
-                        width: layoutAppInfo.width
-                        height: layoutAppInfo.height / 4
-                        font.bold: true
-
-                        anchors.horizontalCenter: parent.horizontalCenter
-
-                        color: textsColor
-                        text: "Author: Denislav Trifonov"
-
-                        font.pointSize: 10
-                    }
-
-                    Text {
-                        width: layoutAppInfo.width
-                        height: layoutAppInfo.height / 4
-                        font.bold: true
-
-                        anchors.horizontalCenter: parent.horizontalCenter
-
-                        color: textsColor
-                        text: "Technology: Bluetooth 4.2"
-
-                        font.pointSize: 10
-                    }
-
-                    Text {
-                        width: layoutAppInfo.width
-                        height: layoutAppInfo.height / 4
-                        font.bold: true
-
-                        anchors.horizontalCenter: parent.horizontalCenter
-
-                        color: textsColor
-                        text: "Version: 0.1"
-
-                        font.pointSize: 10
-                    }
-                }
-            }
         }
     }
 

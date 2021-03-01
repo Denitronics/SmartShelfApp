@@ -3,5 +3,7 @@
         <file>main.qml</file>
         <file>Header.qml</file>
         <file>BLESearch.qml</file>
+        <file>AppInfo.qml</file>
+        <file>data/appInfo.json</file>
     </qresource>
 </RCC>

@@ -1,5 +1,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include "appinfomodel.h"
 
 int main(int argc, char* argv[])
 {
@@ -19,6 +20,8 @@ int main(int argc, char* argv[])
       },
       Qt::QueuedConnection);
     engine.load(url);
+
+    QSharedPointer<AppInfoModel> oAppInfoModel = QSharedPointer<AppInfoModel>(new AppInfoModel);
 
     return app.exec();
 }
