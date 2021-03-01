@@ -1,0 +1,23 @@
+{
+    "info" : [
+        {
+             "name" : "Application",
+             "value" : "SmartShelf"
+        },
+
+        {
+             "name" : "Version",
+             "value" : 0.2
+        },
+
+        {
+             "name" : "Author",
+             "value" : "Denislav Trifonov"
+        },
+
+        {
+             "name" : "Technology",
+             "value" : "Bluetooth v4.2"
+        }
+    ]
+}
