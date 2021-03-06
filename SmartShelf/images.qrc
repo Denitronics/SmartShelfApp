@@ -3,5 +3,6 @@
         <file>icons/bluetooth-logo.jpg</file>
         <file>icons/shelf-logo.jpg</file>
         <file>icons/shelf-logo2.png</file>
+        <file>icons/busy_dark.png</file>
     </qresource>
 </RCC>
