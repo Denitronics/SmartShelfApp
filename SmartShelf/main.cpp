@@ -21,7 +21,6 @@ int main(int argc, char* argv[])
     AppInfoModel* oAppInfoModel = new AppInfoModel();
     engine.rootContext()->setContextProperty("appInfoModel", oAppInfoModel);
 
-
     const QUrl url(QStringLiteral("qrc:/main.qml"));
 
     QObject::connect(
