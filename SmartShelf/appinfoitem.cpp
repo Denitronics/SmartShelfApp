@@ -1,18 +1,37 @@
 #include "appinfoitem.h"
 
-AppInfoItem::AppInfoItem(const QString &strAppInfoType, const QString &strAppInfo)
+AppInfoItem::AppInfoItem(QObject* parent) : QObject(parent) {}
+
+void AppInfoItem::DeclareQML()
 {
-    m_strAppInfoType = strAppInfoType;
-    m_strAppInfo = strAppInfo;
+    // code enters here
+    qmlRegisterType<AppInfoItem>("Datamodels", 1, 0, "AppInfoItem");
 }
 
-QString AppInfoItem::GetAppInfoType()
+void AppInfoItem::setAppInfoType(QString strAppInfoType)
+{
+    if (strAppInfoType != m_strAppInfoType)
+    {
+        m_strAppInfoType = strAppInfoType;
+        emit appInfoTypeChanged();
+    }
+}
+
+void AppInfoItem::setAppInfo(QString strAppInfo)
+{
+    if (strAppInfo != m_strAppInfo)
+    {
+        m_strAppInfo = strAppInfo;
+        emit appInfoChanged();
+    }
+}
+
+QString AppInfoItem::getAppInfoType()
 {
     return m_strAppInfoType;
 }
 
-QString AppInfoItem::GetAppInfo()
+QString AppInfoItem::getAppInfo()
 {
     return m_strAppInfo;
 }
-

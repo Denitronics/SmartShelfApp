@@ -1,6 +1,8 @@
 QT += quick
 
 CONFIG += c++11
+QML_IMPORT_NAME = DataModels
+QML_IMPORT_MAJOR_VERSION = 1
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings

@@ -2,12 +2,14 @@ import QtQuick 2.5
 import QtQuick.Window 2.3
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
+import Datamodels 1.0
 
 Item {
     id: appInfoScreen
 
     Layout.fillHeight: true
     Layout.fillWidth: true
+
 
     Rectangle {
 
@@ -20,59 +22,21 @@ Item {
         border.color: bordersColor
         color: "transparent"
 
-        ColumnLayout {
 
-            id: layoutAppInfo
-            anchors.fill: infoText
-            spacing: 0
+        ListView {
 
-            Text {
-                Layout.preferredWidth: layoutAppInfo.width
-                Layout.preferredHeight: layoutAppInfo.height / 4
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                font.bold: true
+            anchors.fill: parent
 
-                color: textsColor
-                text: "Application: SmartShelf"
+            model: appInfoModel
 
-                font.pointSize: 10
-            }
-
-            Text {
-                Layout.preferredWidth: layoutAppInfo.width
-                Layout.preferredHeight: layoutAppInfo.height / 4
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                font.bold: true
-
-                color: textsColor
-                text: "Author: Denislav Trifonov"
-
-                font.pointSize: 10
-            }
-
-            Text {
-                Layout.preferredWidth: layoutAppInfo.width
-                Layout.preferredHeight: layoutAppInfo.height / 4
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                font.bold: true
-
-                color: textsColor
-                text: "Technology: Bluetooth 4.2"
-
-                font.pointSize: 10
-            }
-
-            Text {
-                Layout.preferredWidth: layoutAppInfo.width
-                Layout.preferredHeight: layoutAppInfo.height / 4
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                font.bold: true
-
-                color: textsColor
-                text: "Version: 0.1"
-
-                font.pointSize: 10
-            }
+            delegate: Text {
+                    property AppInfoItem currentAppInfo: model.object
+                    width: parent.width
+                    height: infoText.height / model.size
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    text: currentAppInfo.appInfoType + ": " + currentAppInfo.appInfo
+                }
         }
     }
 }
