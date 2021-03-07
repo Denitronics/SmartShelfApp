@@ -1,4 +1,4 @@
-QT += quick
+QT += quick bluetooth
 
 CONFIG += c++11
 QML_IMPORT_NAME = DataModels
@@ -18,6 +18,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         appinfoitem.cpp \
         appinfomodel.cpp \
+        blecontroller.cpp \
+        bledeviceitem.cpp \
+        bledevicesmodel.cpp \
         main.cpp
 
 RESOURCES += qml.qrc \
@@ -43,4 +46,7 @@ DISTFILES += \
 
 HEADERS += \
     appinfoitem.h \
-    appinfomodel.h
+    appinfomodel.h \
+    blecontroller.h \
+    bledeviceitem.h \
+    bledevicesmodel.h

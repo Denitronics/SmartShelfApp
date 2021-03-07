@@ -12,7 +12,6 @@ Item {
     Layout.fillWidth: true
 
     property bool deviceSelected: false
-    property bool searchDevicesIconVisible: false
 
     ColumnLayout {
 
@@ -32,8 +31,8 @@ Item {
             ListView {
 
                 anchors.fill: parent
-
                 model: appInfoModel
+                interactive: false
 
                 delegate: Rectangle {
 
@@ -72,16 +71,19 @@ Item {
             }
         }
 
-        Image {
-            id: background
+        Item {
 
             Layout.preferredWidth: parent.width
             Layout.preferredHeight: parent.height / 16
 
-            visible: searchDevicesIconVisible
-            source: "icons/busy_dark.png"
-            fillMode: Image.PreserveAspectFit
-            NumberAnimation on rotation { duration: 3000; from:0; to: 360; loops: Animation.Infinite}
+            Image {
+                id: background
+                anchors.fill: parent
+                visible: bleController.searchDevicesIconVisible
+                source: "icons/busy_dark.png"
+                fillMode: Image.PreserveAspectFit
+                NumberAnimation on rotation { duration: 3000; from:0; to: 360; loops: Animation.Infinite}
+            }
         }
 
         RowLayout {
@@ -95,10 +97,27 @@ Item {
             RoundButton {
                 Layout.preferredWidth: windowSearchBLE.width / 3 - 2 * spacing
                 Layout.alignment: Qt.AlignCenter
-                text: "Search"
+                text: {
+                    if (bleController.searchDevicesIconVisible === false)
+                    {
+                        "Search"
+                    }
+                    else
+                    {
+                        "Stop searching"
+                    }
+                }
+
 
                 onPressed: {
-                    searchDevicesIconVisible = true
+                    if (bleController.searchDevicesIconVisible === false)
+                    {
+                        bleController.searchForBLEDevices()
+                    }
+                    else
+                    {
+                        bleController.stopSearchForBLEDevices()
+                    }
                 }
             }
 

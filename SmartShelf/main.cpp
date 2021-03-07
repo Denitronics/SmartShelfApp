@@ -3,6 +3,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <blecontroller.h>
 
 int main(int argc, char* argv[])
 {
@@ -18,8 +19,12 @@ int main(int argc, char* argv[])
     AppInfoItem::DeclareQML();
 
     // Declare AppInfoModel object and make it accessible in QML
-    AppInfoModel* oAppInfoModel = new AppInfoModel();
-    engine.rootContext()->setContextProperty("appInfoModel", oAppInfoModel);
+    AppInfoModel oAppInfoModel;// = new AppInfoModel();
+    engine.rootContext()->setContextProperty("appInfoModel", &oAppInfoModel);
+
+    // Declare BLE Controller
+    BLEController* oBLEController = new BLEController();
+    engine.rootContext()->setContextProperty("bleController", oBLEController);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
 
