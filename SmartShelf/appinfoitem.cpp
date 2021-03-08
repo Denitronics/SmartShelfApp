@@ -4,7 +4,6 @@ AppInfoItem::AppInfoItem(QObject* parent) : QObject(parent) {}
 
 void AppInfoItem::DeclareQML()
 {
-    // code enters here
     qmlRegisterType<AppInfoItem>("Datamodels", 1, 0, "AppInfoItem");
 }
 

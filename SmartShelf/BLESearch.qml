@@ -31,24 +31,35 @@ Item {
             ListView {
 
                 anchors.fill: parent
-                model: appInfoModel
-                interactive: false
+                model: bleController.bleDevicesModel
+                interactive: {
+                    if (model.size >= 4)
+                    {
+                        false
+                    }
+                    else
+                    {
+                        true
+                    }
+                }
 
                 delegate: Rectangle {
 
                         id: itemBluetoothDevice
-                        width: parent.width
-                        height: availableDevices.height / model.size
+                        width: availableDevices.width
+                        height: availableDevices.height / 4//(model.size + 1)
                         color: "transparent"
                         border.color: "#E0E0E0"
 
                         Text {
-                            property AppInfoItem currentAppInfo: model.object
+                            property BLEDeviceItem currentBLEDevice: model.object
 
                             anchors.fill: parent
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
-                            text: currentAppInfo.appInfoType + ": " + currentAppInfo.appInfo
+                            text: currentBLEDevice.bleDeviceName + ":\r\n "+currentBLEDevice.bleDeviceAddress
+                            font.bold: true
+                            font.pointSize: 12
 
                             MouseArea {
                                 anchors.fill: parent
@@ -113,6 +124,7 @@ Item {
                     if (bleController.searchDevicesIconVisible === false)
                     {
                         bleController.searchForBLEDevices()
+                        deviceSelected = false
                     }
                     else
                     {
