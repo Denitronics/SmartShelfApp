@@ -26,12 +26,14 @@ public:
 
     Q_INVOKABLE void searchForBLEDevices();
     Q_INVOKABLE void stopSearchForBLEDevices();
+    Q_INVOKABLE void connectToBLEDevice(quint8 nBLEDeviceIndex);
 
 private:
     QBluetoothDeviceDiscoveryAgent* m_pBLEDiscoveryAgent;
     QLowEnergyController *m_pBLEController = nullptr;
-
-    BLEDevicesModel* m_pBLEDevicesModel = nullptr;
+    BLEDevicesModel* m_pBLEDevicesModel    = nullptr;
+    QList<QBluetoothDeviceInfo> m_arrBLEFoundDevices;
+    QBluetoothDeviceInfo m_oCurrentBLEConnectedDevice;
 
     bool m_bSearchDevicesIconVisible = false;
 
@@ -45,6 +47,12 @@ private slots:
     void setBLEDevicesModel(BLEDevicesModel * pBLEDevicesModel);
     bool getSearchDevicesIconVisible();
     BLEDevicesModel* getBLEDevicesModel();
+
+    void BLEDeviceConnected();
+    void BLEDeviceDisconnected();
+    void BLEDeviceErrorReceived(QLowEnergyController::Error eError);
+    void BLEAddService(const QBluetoothUuid &uuid);
+    void BLEServiceScanDone();
 
 signals:
     void searchDevicesIconVisibleChanged();

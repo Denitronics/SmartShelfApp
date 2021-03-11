@@ -12,6 +12,7 @@ Item {
     Layout.fillWidth: true
 
     property bool deviceSelected: false
+    property int bleDeviceIndex: 0
 
     ColumnLayout {
 
@@ -68,6 +69,7 @@ Item {
                                     focus = true
                                     itemBluetoothDevice.color = "#E0E0E0"
                                     deviceSelected = true
+                                    bleDeviceIndex = index
                                 }
                                 onFocusChanged:
                                 {
@@ -139,6 +141,10 @@ Item {
                 Layout.alignment: Qt.AlignCenter
                 text: "Connect"
                 enabled: deviceSelected
+
+                onPressed: {
+                    bleController.connectToBLEDevice(bleDeviceIndex)
+                }
             }
         }
     }
