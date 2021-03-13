@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>BLESearch.qml</file>
+        <file>SmartShelf.qml</file>
         <file>AppInfo.qml</file>
         <file>data/appInfo.json</file>
     </qresource>

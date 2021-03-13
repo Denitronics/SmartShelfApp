@@ -6,7 +6,9 @@
 #include <QJsonObject>
 #include <QObject>
 
+// ===================================================
 AppInfoModel::AppInfoModel(QObject* parent) : QAbstractListModel(parent)
+// ===================================================
 {
     // Get the data from .json file
     QString strJsonFile;
@@ -42,19 +44,24 @@ AppInfoModel::AppInfoModel(QObject* parent) : QAbstractListModel(parent)
     endResetModel();
 }
 
+// ===================================================
 void AppInfoModel::DeclareQML()
+// ===================================================
 {
     qmlRegisterType<AppInfoItem>("Datamodels", 1, 0, "AppInfoModel");
 }
 
-
+// ===================================================
 int AppInfoModel::rowCount(const QModelIndex& parent) const
+// ===================================================
 {
     Q_UNUSED(parent);
     return m_arrAppInfoItems.count();
 }
 
+// ===================================================
 QVariant AppInfoModel::data(const QModelIndex& index, int role) const
+// ===================================================
 {
     if (index.row() < 0 || index.row() >= m_arrAppInfoItems.count())
     {
@@ -86,7 +93,9 @@ QVariant AppInfoModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
+// ===================================================
 QHash<int, QByteArray> AppInfoModel::roleNames() const
+// ===================================================
 {
     QHash<int, QByteArray> roles;
     roles[InfoTypeRole] = "type";

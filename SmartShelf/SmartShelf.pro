@@ -40,13 +40,14 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
+    SmartShelf.qml \
     data/appInfo.json \
-    icons/bluetooth-logo.jpg \
-    BLESearch.qml
+    icons/bluetooth-logo.jpg
 
 HEADERS += \
     appinfoitem.h \
     appinfomodel.h \
     blecontroller.h \
     bledeviceitem.h \
-    bledevicesmodel.h
+    bledevicesmodel.h \
+    defines.h

@@ -1,13 +1,19 @@
 #include "appinfoitem.h"
 
+// ===================================================
 AppInfoItem::AppInfoItem(QObject* parent) : QObject(parent) {}
+// ===================================================
 
+// ===================================================
 void AppInfoItem::DeclareQML()
+// ===================================================
 {
     qmlRegisterType<AppInfoItem>("Datamodels", 1, 0, "AppInfoItem");
 }
 
+// ===================================================
 void AppInfoItem::setAppInfoType(QString strAppInfoType)
+// ===================================================
 {
     if (strAppInfoType != m_strAppInfoType)
     {
@@ -16,7 +22,9 @@ void AppInfoItem::setAppInfoType(QString strAppInfoType)
     }
 }
 
+// ===================================================
 void AppInfoItem::setAppInfo(QString strAppInfo)
+// ===================================================
 {
     if (strAppInfo != m_strAppInfo)
     {
@@ -25,12 +33,17 @@ void AppInfoItem::setAppInfo(QString strAppInfo)
     }
 }
 
+// ===================================================
 QString AppInfoItem::getAppInfoType()
+// ===================================================
 {
     return m_strAppInfoType;
 }
 
+// ===================================================
 QString AppInfoItem::getAppInfo()
+// ===================================================
 {
     return m_strAppInfo;
 }
+// ===================================================

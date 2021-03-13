@@ -43,7 +43,7 @@ ApplicationWindow {
             Layout.fillHeight: true
             Layout.preferredWidth: mainWindow.width / 4
 
-            text: "Connect"
+            text: "Shelves"
             onClicked: {
                 stackLayoutApp.currentIndex = 1
                 screenName = qsTr("Connect with SmartShelf")
@@ -110,8 +110,8 @@ ApplicationWindow {
 
         }
 
-        BLESearch {
-            id: bleSearch
+        SmartShelf {
+            id: smartShelf
         }
 
         AppInfo {

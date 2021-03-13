@@ -1,7 +1,8 @@
 #include "blecontroller.h"
 
-
+// ===================================================
 BLEController::BLEController(QObject *parent)
+// ===================================================
 {
     Q_UNUSED(parent)
 
@@ -19,24 +20,32 @@ BLEController::BLEController(QObject *parent)
     BLEDeviceItem::DeclareQML();
 }
 
+// ===================================================
 void BLEController::searchForBLEDevices()
+// ===================================================
 {
     qDebug() << "Start searching for BLE devices ...";
+    m_arrBLEFoundDevices.clear();
     setSearchDevicesIconVisible(true);
+    setSearchingInProcess(true);
     m_pBLEDiscoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-
 
     m_pBLEDevicesModel->ClearModel();
 }
 
+// ===================================================
 void BLEController::stopSearchForBLEDevices()
+// ===================================================
 {
     qDebug() << "Searching stopped";
+    setSearchingInProcess(false);
     setSearchDevicesIconVisible(false);
     m_pBLEDiscoveryAgent->stop();
 }
 
+// ===================================================
 void BLEController::connectToBLEDevice(quint8 nBLEDeviceIndex)
+// ===================================================
 {
     // get the BLE device by the passed index
     m_oCurrentBLEConnectedDevice = m_arrBLEFoundDevices.at(nBLEDeviceIndex);
@@ -71,11 +80,27 @@ void BLEController::connectToBLEDevice(quint8 nBLEDeviceIndex)
                 this, &BLEController::BLEServiceScanDone);
     }
 
+    setSearchDevicesIconVisible(true);
     m_pBLEController->setRemoteAddressType(QLowEnergyController::PublicAddress);
     m_pBLEController->connectToDevice();
 }
 
+// ===================================================
+void BLEController::disconnectFromBLEDevice()
+// ===================================================
+{
+    if (m_pBLEController->state() != QLowEnergyController::UnconnectedState)
+    {
+        setSearchDevicesIconVisible(true);
+        m_arrBLEFoundDevices.clear();
+        m_pBLEDevicesModel->ClearModel();
+        m_pBLEController->disconnectFromDevice();
+    }
+}
+
+// ===================================================
 void BLEController::AddDevice(const QBluetoothDeviceInfo &info)
+// ===================================================
 {
     if (info.coreConfigurations() & QBluetoothDeviceInfo::LowEnergyCoreConfiguration)
     {
@@ -99,17 +124,25 @@ void BLEController::AddDevice(const QBluetoothDeviceInfo &info)
     }
 }
 
+// ===================================================
 void BLEController::DeviceScanFinished()
+// ===================================================
 {
+    setSearchingInProcess(false);
     setSearchDevicesIconVisible(false);
 }
 
+// ===================================================
 void BLEController::DeviceScanError(QBluetoothDeviceDiscoveryAgent::Error)
+// ===================================================
 {
+    setSearchingInProcess(false);
     setSearchDevicesIconVisible(false);
 }
 
+// ===================================================
 void BLEController::setSearchDevicesIconVisible(bool bVisible)
+// ===================================================
 {
     if (m_bSearchDevicesIconVisible != bVisible)
     {
@@ -118,7 +151,31 @@ void BLEController::setSearchDevicesIconVisible(bool bVisible)
     }
 }
 
+// ===================================================
+void BLEController::setShelfScreenActiveLayout(quint8 nLayout)
+// ===================================================
+{
+    if (m_nShelfScreenActiveLayout != nLayout)
+    {
+        m_nShelfScreenActiveLayout = nLayout;
+        emit shelfScreenActiveLayoutChanged();
+    }
+}
+
+// ===================================================
+void BLEController::setSearchingInProcess(bool bSearchInProcess)
+// ===================================================
+{
+    if (m_bSearchInProcess != bSearchInProcess)
+    {
+        m_bSearchInProcess = bSearchInProcess;
+        emit searchingInProcessChanged();
+    }
+}
+
+// ===================================================
 void BLEController::setBLEDevicesModel(BLEDevicesModel *pBLEDevicesModel)
+// ===================================================
 {
     if (pBLEDevicesModel != m_pBLEDevicesModel)
     {
@@ -127,38 +184,74 @@ void BLEController::setBLEDevicesModel(BLEDevicesModel *pBLEDevicesModel)
     }
 }
 
+// ===================================================
 bool BLEController::getSearchDevicesIconVisible()
+// ===================================================
 {
     return m_bSearchDevicesIconVisible;
 }
 
+// ===================================================
+bool BLEController::getSearchingInProcess()
+// ===================================================
+{
+    return m_bSearchInProcess;
+}
+
+// ===================================================
+quint8 BLEController::shelfScreenActiveLayout()
+// ===================================================
+{
+    return m_nShelfScreenActiveLayout;
+}
+
+// ===================================================
 BLEDevicesModel *BLEController::getBLEDevicesModel()
+// ===================================================
 {
     return m_pBLEDevicesModel;
 }
 
+// ===================================================
 void BLEController::BLEDeviceConnected()
+// ===================================================
 {
+    setSearchingInProcess(false);
+    setSearchDevicesIconVisible(false);
     qDebug() << "Connected to BLE device!";
-
+    setShelfScreenActiveLayout(SHELF_SCREEN_LAYOUT_CONNECTED_BLE);
 }
 
+// ===================================================
 void BLEController::BLEDeviceDisconnected()
+// ===================================================
 {
-
+    setSearchingInProcess(false);
+    setSearchDevicesIconVisible(false);
+    qDebug() << "Disconnected from BLE device!";
+    setShelfScreenActiveLayout(SHELF_SCREEN_LAYOUT_SEARCH_BLE);
 }
 
+// ===================================================
 void BLEController::BLEDeviceErrorReceived(QLowEnergyController::Error eError)
+// ===================================================
 {
+    setSearchingInProcess(false);
+    setSearchDevicesIconVisible(false);
     Q_UNUSED(eError);
 }
 
+// ===================================================
 void BLEController::BLEAddService(const QBluetoothUuid &uuid)
+// ===================================================
 {
     Q_UNUSED(uuid);
 }
 
+// ===================================================
 void BLEController::BLEServiceScanDone()
+// ===================================================
 {
 
 }
+// ===================================================
