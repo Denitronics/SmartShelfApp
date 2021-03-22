@@ -75,9 +75,9 @@ void BLEController::connectToBLEDevice(quint8 nBLEDeviceIndex)
         connect(m_pBLEController, &QLowEnergyController::disconnected,
                 this, &BLEController::BLEDeviceDisconnected);
         connect(m_pBLEController, &QLowEnergyController::serviceDiscovered,
-                this, &BLEController::BLEAddService);
+                this, &BLEController::BLEAddService, Qt::ConnectionType::QueuedConnection);
         connect(m_pBLEController, &QLowEnergyController::discoveryFinished,
-                this, &BLEController::BLEServiceScanDone);
+                this, &BLEController::BLEServiceScanDone, Qt::ConnectionType::QueuedConnection);
     }
 
     setSearchDevicesIconVisible(true);
@@ -138,6 +138,7 @@ void BLEController::DeviceScanError(QBluetoothDeviceDiscoveryAgent::Error)
 {
     setSearchingInProcess(false);
     setSearchDevicesIconVisible(false);
+    qDebug() << "BLE Devices Scanning Error!";
 }
 
 // ===================================================
@@ -220,6 +221,9 @@ void BLEController::BLEDeviceConnected()
     setSearchDevicesIconVisible(false);
     qDebug() << "Connected to BLE device!";
     setShelfScreenActiveLayout(SHELF_SCREEN_LAYOUT_CONNECTED_BLE);
+
+    // Scan for services
+    m_pBLEController->discoverServices();
 }
 
 // ===================================================
@@ -245,13 +249,98 @@ void BLEController::BLEDeviceErrorReceived(QLowEnergyController::Error eError)
 void BLEController::BLEAddService(const QBluetoothUuid &uuid)
 // ===================================================
 {
-    Q_UNUSED(uuid);
+    //! [les-service-1]
+    QString strBLEServiceUUID = uuid.toString();
+
+    if (strBLEServiceUUID == BLE_SERVICE_UUID)
+    {
+        qDebug() << "Service found!";
+
+        m_pCurrentBLEService = m_pBLEController->createServiceObject(uuid);
+
+        if (!m_pCurrentBLEService) {
+            qWarning() << "Cannot create service for uuid";
+            return;
+        }
+    }
 }
 
 // ===================================================
 void BLEController::BLEServiceScanDone()
 // ===================================================
 {
+    qDebug() << "BLE service state:" << m_pCurrentBLEService->state();
 
+    if (m_pCurrentBLEService)
+    {
+        if (m_pCurrentBLEService->state() == QLowEnergyService::DiscoveryRequired)
+        {
+            connect(m_pCurrentBLEService, &QLowEnergyService::stateChanged,
+                    this, &BLEController::BLEServiceDetailsDiscovered);
+            connect(m_pCurrentBLEService, &QLowEnergyService::characteristicChanged, this, &BLEController::SmartShelfValueChanged);
+            m_pCurrentBLEService->discoverDetails();
+        }
+        else if (m_pCurrentBLEService->state() == QLowEnergyService::ServiceDiscovered)
+        {
+            BLEServiceDetailsDiscovered(QLowEnergyService::ServiceDiscovered);
+        }
+    }
+}
+
+// ===================================================
+void BLEController::BLEServiceDetailsDiscovered(QLowEnergyService::ServiceState newState)
+// ===================================================
+{
+    if (m_pBLEController->error() != QLowEnergyController::Error::NoError)
+    {
+        qDebug () << "Error: " << m_pBLEController->error();
+    }
+    if (m_pCurrentBLEService->error() != QLowEnergyService::ServiceError::NoError)
+    {
+        qDebug () << "Error: " << m_pCurrentBLEService->error();
+    }
+    qDebug () << "BLE Service new state: " << newState;
+
+    if (newState == QLowEnergyService::DiscoveryRequired)
+    {
+        m_pCurrentBLEService->discoverDetails();
+    }
+
+    else if (newState == QLowEnergyService::ServiceDiscovered)
+    {
+        if (m_pCurrentBLEService)
+        {
+            m_arrCharacteristics = m_pCurrentBLEService->characteristics();
+
+
+            qDebug() << "Characteristics found:";
+
+            for (quint8 idx = 0; idx < m_arrCharacteristics.size(); idx++)
+            {
+                QByteArray arrValues = m_arrCharacteristics.at(idx).value();
+                qDebug() << "Characteristic: " << m_arrCharacteristics.at(idx).name() << " - "<<m_arrCharacteristics.at(idx).uuid() << " - " << m_arrCharacteristics.at(idx).value();
+                qDebug() << "Properties: " << m_arrCharacteristics.at(idx).properties();
+                //qDebug() << "Descriptor: " << m_arrCharacteristics.at(idx).descriptors();
+            }
+        }
+    }
+}
+
+// ===================================================
+void BLEController::BLEServiceError(QLowEnergyService::ServiceError error)
+// ===================================================
+{
+    qDebug() << "Service error: " << error;
+}
+
+// ===================================================
+void BLEController::SmartShelfValueChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
+// ===================================================
+{
+    qDebug() << "Characteristic updated!";
+    if (characteristic.uuid().toString() == BLE_CHARACTERISTIC_UUID)
+    {
+        qDebug() << "Characteristic value updated: " << newValue;
+    }
 }
 // ===================================================
