@@ -75,6 +75,7 @@ private slots:
     void BLEServiceError(QLowEnergyService::ServiceError error);
 
     void SmartShelfValueChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void ReadSmartShelfValue(const QLowEnergyCharacteristic &info, const QByteArray &value);
 
 signals:
     void searchDevicesIconVisibleChanged();

@@ -278,6 +278,8 @@ void BLEController::BLEServiceScanDone()
             connect(m_pCurrentBLEService, &QLowEnergyService::stateChanged,
                     this, &BLEController::BLEServiceDetailsDiscovered);
             connect(m_pCurrentBLEService, &QLowEnergyService::characteristicChanged, this, &BLEController::SmartShelfValueChanged);
+            connect(m_pCurrentBLEService, &QLowEnergyService::characteristicRead, this, &BLEController::ReadSmartShelfValue);
+
             m_pCurrentBLEService->discoverDetails();
         }
         else if (m_pCurrentBLEService->state() == QLowEnergyService::ServiceDiscovered)
@@ -312,16 +314,30 @@ void BLEController::BLEServiceDetailsDiscovered(QLowEnergyService::ServiceState 
         {
             m_arrCharacteristics = m_pCurrentBLEService->characteristics();
 
-
             qDebug() << "Characteristics found:";
 
             for (quint8 idx = 0; idx < m_arrCharacteristics.size(); idx++)
             {
-                QByteArray arrValues = m_arrCharacteristics.at(idx).value();
-                qDebug() << "Characteristic: " << m_arrCharacteristics.at(idx).name() << " - "<<m_arrCharacteristics.at(idx).uuid() << " - " << m_arrCharacteristics.at(idx).value();
+                QByteArray m_arrCharsDescriptors = m_arrCharacteristics.at(idx).descriptors().at(0).value();
+
+                qDebug() << "Characteristic:";
+                qDebug() << "Uuid: " << m_arrCharacteristics.at(idx).uuid();
+                qDebug() << "Value: " << m_arrCharacteristics.at(idx).value();
                 qDebug() << "Properties: " << m_arrCharacteristics.at(idx).properties();
-                //qDebug() << "Descriptor: " << m_arrCharacteristics.at(idx).descriptors();
+                qDebug() << "Descriptor: " << m_arrCharacteristics.at(idx).descriptors().at(0).type();
             }
+
+            QLowEnergyDescriptor notification = m_arrCharacteristics.at(0).descriptor(
+                QBluetoothUuid::ClientCharacteristicConfiguration);
+
+            if (!notification.isValid())
+            {
+                return;
+            }
+
+            m_pCurrentBLEService->writeDescriptor(notification, QByteArray::fromHex("0100"));
+
+            //m_pCurrentBLEService->readCharacteristic(m_arrCharacteristics.at(0));
         }
     }
 }
@@ -341,6 +357,18 @@ void BLEController::SmartShelfValueChanged(const QLowEnergyCharacteristic &chara
     if (characteristic.uuid().toString() == BLE_CHARACTERISTIC_UUID)
     {
         qDebug() << "Characteristic value updated: " << newValue;
+    }
+}
+
+// ===================================================
+void BLEController::ReadSmartShelfValue(const QLowEnergyCharacteristic &info, const QByteArray &value)
+// ===================================================
+{
+    qDebug() << "char value: " << value;
+
+    if (info.isValid())
+    {
+        //m_pCurrentBLEService->readCharacteristic(m_arrCharacteristics.at(0));
     }
 }
 // ===================================================
