@@ -5,8 +5,6 @@
 #include <QtDebug>
 #include <qbluetoothlocaldevice.h>
 #include <QObject>
-#include <QVariant>
-#include <QList>
 #include <QBluetoothServiceDiscoveryAgent>
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QLowEnergyController>
@@ -14,6 +12,8 @@
 #include <bledevicesmodel.h>
 #include <bledeviceitem.h>
 #include <QTimer>
+#include <shelvesmodel.h>
+#include <shelfitem.h>
 #include "defines.h"
 
 
@@ -28,6 +28,7 @@ public:
     Q_PROPERTY(bool searchingInProcess READ getSearchingInProcess WRITE setSearchingInProcess NOTIFY searchingInProcessChanged)
     Q_PROPERTY(quint8 shelfScreenActiveLayout READ shelfScreenActiveLayout WRITE setShelfScreenActiveLayout NOTIFY shelfScreenActiveLayoutChanged)
     Q_PROPERTY(BLEDevicesModel* bleDevicesModel READ getBLEDevicesModel WRITE setBLEDevicesModel NOTIFY onBLEDevicesModelChanged)
+    Q_PROPERTY(ShelvesModel* shelvesModel READ shelvesModel NOTIFY shelvesModelChanged)
 
     Q_INVOKABLE void searchForBLEDevices();
     Q_INVOKABLE void stopSearchForBLEDevices();
@@ -35,15 +36,20 @@ public:
     Q_INVOKABLE void disconnectFromBLEDevice();
 
 private:
-    QBluetoothDeviceDiscoveryAgent* m_pBLEDiscoveryAgent;
+    void AnalyzeHeaderCharacteristic();
+
+    // Data models
+    BLEDevicesModel* m_pBLEDevicesModel = nullptr;
+    ShelvesModel* m_pShelvesModel       = nullptr;
+
+    // BLE related members
     QLowEnergyController *m_pBLEController = nullptr;
-    BLEDevicesModel* m_pBLEDevicesModel    = nullptr;
+    QBluetoothDeviceDiscoveryAgent* m_pBLEDiscoveryAgent;
     QList<QBluetoothDeviceInfo> m_arrBLEFoundDevices;
     QBluetoothDeviceInfo m_oCurrentBLEConnectedDevice;
-
     QLowEnergyService* m_pCurrentBLEService = nullptr;
-    QList<QLowEnergyService *> m_arrServices;
-    QList<QLowEnergyCharacteristic> m_arrCharacteristics;
+    QList<QLowEnergyService *> m_arrBLEServices;
+    QList<QLowEnergyCharacteristic> m_arrBLECharacteristics;
 
     bool m_bSearchDevicesIconVisible = false;
     bool m_bSearchInProcess          = false;
@@ -51,9 +57,9 @@ private:
 
 private slots:
 
-    void AddDevice(const QBluetoothDeviceInfo&info);
-    void DeviceScanFinished();
-    void DeviceScanError(QBluetoothDeviceDiscoveryAgent::Error);
+    void BLEAddDevice(const QBluetoothDeviceInfo&info);
+    void BLEDeviceScanFinished();
+    void BLEDeviceScanError(QBluetoothDeviceDiscoveryAgent::Error);
 
     void setSearchDevicesIconVisible(bool bVisible);
     void setShelfScreenActiveLayout(quint8 nLayout);
@@ -63,6 +69,8 @@ private slots:
     bool getSearchingInProcess();
     quint8 shelfScreenActiveLayout();
     BLEDevicesModel* getBLEDevicesModel();
+    ShelvesModel* shelvesModel();
+    void setShelvesModel(ShelvesModel* pShelvesModel);
 
     void BLEDeviceConnected();
     void BLEDeviceDisconnected();
@@ -74,12 +82,13 @@ private slots:
     void BLEServiceDetailsDiscovered(QLowEnergyService::ServiceState newState);
     void BLEServiceError(QLowEnergyService::ServiceError error);
 
-    void SmartShelfValueChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void ReadSmartShelfValue(const QLowEnergyCharacteristic &info, const QByteArray &value);
+    void BLECharacteristicValueChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void BLEReadCharacteristicValue(const QLowEnergyCharacteristic &info, const QByteArray &value);
 
 signals:
     void searchDevicesIconVisibleChanged();
     void onBLEDevicesModelChanged();
+    void shelvesModelChanged();
     void shelfScreenActiveLayoutChanged();
     void searchingInProcessChanged();
 };

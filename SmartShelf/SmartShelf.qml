@@ -181,6 +181,11 @@ Item {
                     Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                     color: "transparent"
                     border.color: "#E0E0E0"
+
+                    // Swipe view for visualizng smart shelf items type
+                    Shelves {
+                        anchors.fill: parent
+                    }
                 }
 
                 Item {

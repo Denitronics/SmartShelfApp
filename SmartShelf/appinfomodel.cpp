@@ -48,7 +48,7 @@ AppInfoModel::AppInfoModel(QObject* parent) : QAbstractListModel(parent)
 void AppInfoModel::DeclareQML()
 // ===================================================
 {
-    qmlRegisterType<AppInfoItem>("Datamodels", 1, 0, "AppInfoModel");
+    qmlRegisterType<AppInfoModel>("Datamodels", 1, 0, "AppInfoModel");
 }
 
 // ===================================================

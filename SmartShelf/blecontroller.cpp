@@ -8,16 +8,18 @@ BLEController::BLEController(QObject *parent)
 
     // Set searching period to 10 seconds
     m_pBLEDiscoveryAgent = new QBluetoothDeviceDiscoveryAgent();
-    m_pBLEDiscoveryAgent->setLowEnergyDiscoveryTimeout(10000);
+    m_pBLEDiscoveryAgent->setLowEnergyDiscoveryTimeout(20000);
     connect(m_pBLEDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered,
-            this, &BLEController::AddDevice);
+            this, &BLEController::BLEAddDevice);
     connect(m_pBLEDiscoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error),
-            this, &BLEController::DeviceScanError);
-    connect(m_pBLEDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &BLEController::DeviceScanFinished);
+            this, &BLEController::BLEDeviceScanError);
+    connect(m_pBLEDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &BLEController::BLEDeviceScanFinished);
 
     m_pBLEDevicesModel = new BLEDevicesModel(parent);
+    m_pShelvesModel = new ShelvesModel(parent);
 
     BLEDeviceItem::DeclareQML();
+    ShelfItem::DeclareQML();
 }
 
 // ===================================================
@@ -31,6 +33,7 @@ void BLEController::searchForBLEDevices()
     m_pBLEDiscoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 
     m_pBLEDevicesModel->ClearModel();
+    m_pShelvesModel->ClearModel();
 }
 
 // ===================================================
@@ -94,12 +97,34 @@ void BLEController::disconnectFromBLEDevice()
         setSearchDevicesIconVisible(true);
         m_arrBLEFoundDevices.clear();
         m_pBLEDevicesModel->ClearModel();
+        m_pShelvesModel->ClearModel();
         m_pBLEController->disconnectFromDevice();
     }
 }
 
 // ===================================================
-void BLEController::AddDevice(const QBluetoothDeviceInfo &info)
+void BLEController::AnalyzeHeaderCharacteristic()
+// ===================================================
+{
+    for (quint8 idx = 0; idx < m_arrBLECharacteristics.size(); idx++)
+    {
+        if (m_arrBLECharacteristics.at(idx).uuid().toString() == BLE_HEADER_CHARACTERISTIC)
+        {
+            QByteArray arrHeaderCharacteristicData = m_arrBLECharacteristics.at(idx).value();
+            quint8 nDevicesNum = static_cast<quint8>(arrHeaderCharacteristicData.at(0));
+
+            for (quint8 i = 0; i < nDevicesNum; i++)
+            {
+                m_pShelvesModel->AddShelfItem(static_cast<ShelvesModel::ShelfType>(arrHeaderCharacteristicData.at(i * 2 + 1)), arrHeaderCharacteristicData.at(i * 2 + 2));
+            }
+
+            break;
+        }
+    }
+}
+
+// ===================================================
+void BLEController::BLEAddDevice(const QBluetoothDeviceInfo &info)
 // ===================================================
 {
     if (info.coreConfigurations() & QBluetoothDeviceInfo::LowEnergyCoreConfiguration)
@@ -125,7 +150,7 @@ void BLEController::AddDevice(const QBluetoothDeviceInfo &info)
 }
 
 // ===================================================
-void BLEController::DeviceScanFinished()
+void BLEController::BLEDeviceScanFinished()
 // ===================================================
 {
     setSearchingInProcess(false);
@@ -133,7 +158,7 @@ void BLEController::DeviceScanFinished()
 }
 
 // ===================================================
-void BLEController::DeviceScanError(QBluetoothDeviceDiscoveryAgent::Error)
+void BLEController::BLEDeviceScanError(QBluetoothDeviceDiscoveryAgent::Error)
 // ===================================================
 {
     setSearchingInProcess(false);
@@ -214,14 +239,28 @@ BLEDevicesModel *BLEController::getBLEDevicesModel()
 }
 
 // ===================================================
+ShelvesModel *BLEController::shelvesModel()
+// ===================================================
+{
+    return m_pShelvesModel;
+}
+
+// ===================================================
+void BLEController::setShelvesModel(ShelvesModel *pShelvesModel)
+// ===================================================
+{
+    if (m_pShelvesModel != pShelvesModel)
+    {
+        m_pShelvesModel = pShelvesModel;
+        emit shelvesModelChanged();
+    }
+}
+
+// ===================================================
 void BLEController::BLEDeviceConnected()
 // ===================================================
 {
-    setSearchingInProcess(false);
-    setSearchDevicesIconVisible(false);
     qDebug() << "Connected to BLE device!";
-    setShelfScreenActiveLayout(SHELF_SCREEN_LAYOUT_CONNECTED_BLE);
-
     // Scan for services
     m_pBLEController->discoverServices();
 }
@@ -277,8 +316,8 @@ void BLEController::BLEServiceScanDone()
         {
             connect(m_pCurrentBLEService, &QLowEnergyService::stateChanged,
                     this, &BLEController::BLEServiceDetailsDiscovered);
-            connect(m_pCurrentBLEService, &QLowEnergyService::characteristicChanged, this, &BLEController::SmartShelfValueChanged);
-            connect(m_pCurrentBLEService, &QLowEnergyService::characteristicRead, this, &BLEController::ReadSmartShelfValue);
+            connect(m_pCurrentBLEService, &QLowEnergyService::characteristicChanged, this, &BLEController::BLECharacteristicValueChanged);
+            connect(m_pCurrentBLEService, &QLowEnergyService::characteristicRead, this, &BLEController::BLEReadCharacteristicValue);
 
             m_pCurrentBLEService->discoverDetails();
         }
@@ -312,32 +351,32 @@ void BLEController::BLEServiceDetailsDiscovered(QLowEnergyService::ServiceState 
     {
         if (m_pCurrentBLEService)
         {
-            m_arrCharacteristics = m_pCurrentBLEService->characteristics();
+            m_arrBLECharacteristics = m_pCurrentBLEService->characteristics();
 
-            qDebug() << "Characteristics found:";
+            // Fill the shelves data model
+            AnalyzeHeaderCharacteristic();
 
-            for (quint8 idx = 0; idx < m_arrCharacteristics.size(); idx++)
+            for (quint8 idx = 0; idx < m_arrBLECharacteristics.count(); idx++)
             {
-                QByteArray m_arrCharsDescriptors = m_arrCharacteristics.at(idx).descriptors().at(0).value();
+                QLowEnergyDescriptor notification = m_arrBLECharacteristics.at(idx).descriptor(
+                    QBluetoothUuid::ClientCharacteristicConfiguration);
 
-                qDebug() << "Characteristic:";
-                qDebug() << "Uuid: " << m_arrCharacteristics.at(idx).uuid();
-                qDebug() << "Value: " << m_arrCharacteristics.at(idx).value();
-                qDebug() << "Properties: " << m_arrCharacteristics.at(idx).properties();
-                qDebug() << "Descriptor: " << m_arrCharacteristics.at(idx).descriptors().at(0).type();
+                if (!notification.isValid())
+                {
+                    return;
+                }
+
+                m_pCurrentBLEService->writeDescriptor(notification, QByteArray::fromHex("0100"));
+
+                if (idx > 0)
+                {
+                    quint8 nInitialLeftStock = m_arrBLECharacteristics.at(idx).value().at(1);
+                    quint8 nIndex = m_arrBLECharacteristics.at(idx).value().at(0);
+                    m_pShelvesModel->UpdateShelfItem(nIndex, nInitialLeftStock);
+                }
             }
 
-            QLowEnergyDescriptor notification = m_arrCharacteristics.at(0).descriptor(
-                QBluetoothUuid::ClientCharacteristicConfiguration);
-
-            if (!notification.isValid())
-            {
-                return;
-            }
-
-            m_pCurrentBLEService->writeDescriptor(notification, QByteArray::fromHex("0100"));
-
-            //m_pCurrentBLEService->readCharacteristic(m_arrCharacteristics.at(0));
+            setShelfScreenActiveLayout(SHELF_SCREEN_LAYOUT_CONNECTED_BLE);
         }
     }
 }
@@ -350,25 +389,25 @@ void BLEController::BLEServiceError(QLowEnergyService::ServiceError error)
 }
 
 // ===================================================
-void BLEController::SmartShelfValueChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
+void BLEController::BLECharacteristicValueChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 // ===================================================
 {
-    qDebug() << "Characteristic updated!";
-    if (characteristic.uuid().toString() == BLE_CHARACTERISTIC_UUID)
+    if (characteristic.uuid().toString() != BLE_HEADER_CHARACTERISTIC)
     {
-        qDebug() << "Characteristic value updated: " << newValue;
+        //! Update shelf
+        m_pShelvesModel->UpdateShelfItem(newValue.at(0), newValue.at(1));
     }
 }
 
 // ===================================================
-void BLEController::ReadSmartShelfValue(const QLowEnergyCharacteristic &info, const QByteArray &value)
+void BLEController::BLEReadCharacteristicValue(const QLowEnergyCharacteristic &info, const QByteArray &value)
 // ===================================================
 {
     qDebug() << "char value: " << value;
 
     if (info.isValid())
     {
-        //m_pCurrentBLEService->readCharacteristic(m_arrCharacteristics.at(0));
+        //m_pCurrentBLEService->readCharacteristic(m_arrBLECharacteristics.at(0));
     }
 }
 // ===================================================

@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
     AppInfoItem::DeclareQML();
 
     // Declare AppInfoModel object and make it accessible in QML
-    AppInfoModel oAppInfoModel;// = new AppInfoModel();
+    AppInfoModel oAppInfoModel;
     engine.rootContext()->setContextProperty("appInfoModel", &oAppInfoModel);
 
     // Declare BLE Controller

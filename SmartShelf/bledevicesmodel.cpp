@@ -17,7 +17,7 @@ BLEDevicesModel::BLEDevicesModel(QObject* parent) : QAbstractListModel(parent)
 
 void BLEDevicesModel::DeclareQML()
 {
-    qmlRegisterType<BLEDeviceItem>("Datamodels", 1, 0, "BLEDevicesModel");
+    qmlRegisterType<BLEDevicesModel>("Datamodels", 1, 0, "BLEDevicesModel");
 }
 
 int BLEDevicesModel::rowCount(const QModelIndex& parent) const

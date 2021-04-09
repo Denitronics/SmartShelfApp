@@ -21,7 +21,9 @@ SOURCES += \
         blecontroller.cpp \
         bledeviceitem.cpp \
         bledevicesmodel.cpp \
-        main.cpp
+        main.cpp \
+        shelfitem.cpp \
+        shelvesmodel.cpp
 
 RESOURCES += qml.qrc \
     images.qrc
@@ -40,6 +42,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
+    Shelves.qml \
     SmartShelf.qml \
     data/appInfo.json \
     icons/bluetooth-logo.jpg
@@ -50,4 +53,6 @@ HEADERS += \
     blecontroller.h \
     bledeviceitem.h \
     bledevicesmodel.h \
-    defines.h
+    defines.h \
+    shelfitem.h \
+    shelvesmodel.h
