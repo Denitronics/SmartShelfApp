@@ -9,5 +9,8 @@
         <file>C:/Users/User/Downloads/can.png</file>
         <file>icons/can.png</file>
         <file>icons/573004-200.png</file>
+        <file>icons/navigation_previous_item.png</file>
+        <file>icons/metal_can.png</file>
+        <file>icons/chips.png</file>
     </qresource>
 </RCC>

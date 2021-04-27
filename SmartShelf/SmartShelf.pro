@@ -23,6 +23,7 @@ SOURCES += \
         bledevicesmodel.cpp \
         main.cpp \
         shelfitem.cpp \
+        shelfitemmodel.cpp \
         shelvesmodel.cpp
 
 RESOURCES += qml.qrc \
@@ -55,4 +56,5 @@ HEADERS += \
     bledevicesmodel.h \
     defines.h \
     shelfitem.h \
+    shelfitemmodel.h \
     shelvesmodel.h

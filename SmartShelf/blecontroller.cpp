@@ -19,6 +19,7 @@ BLEController::BLEController(QObject *parent)
     m_pShelvesModel = new ShelvesModel(parent);
 
     BLEDeviceItem::DeclareQML();
+    ShelfItemModel::DeclareQML();
     ShelfItem::DeclareQML();
 }
 
@@ -115,7 +116,8 @@ void BLEController::AnalyzeHeaderCharacteristic()
 
             for (quint8 i = 0; i < nDevicesNum; i++)
             {
-                m_pShelvesModel->AddShelfItem(static_cast<ShelvesModel::ShelfType>(arrHeaderCharacteristicData.at(i * 2 + 1)), arrHeaderCharacteristicData.at(i * 2 + 2));
+                m_pShelvesModel->AddShelfItemModel(static_cast<ShelvesModel::ShelfType>(arrHeaderCharacteristicData.at(i * 3 + 1)), arrHeaderCharacteristicData.at(i * 3 + 2),
+                                                   arrHeaderCharacteristicData.at(i * 3 + 3));
             }
 
             break;
@@ -368,11 +370,10 @@ void BLEController::BLEServiceDetailsDiscovered(QLowEnergyService::ServiceState 
 
                 m_pCurrentBLEService->writeDescriptor(notification, QByteArray::fromHex("0100"));
 
-                if (idx > 0)
+                if (m_arrBLECharacteristics.at(idx).uuid().toString() == BLE_REMAINING_STOCK_CHAR && m_arrBLECharacteristics.at(idx).isValid())
                 {
-                    quint8 nInitialLeftStock = m_arrBLECharacteristics.at(idx).value().at(1);
-                    quint8 nIndex = m_arrBLECharacteristics.at(idx).value().at(0);
-                    m_pShelvesModel->UpdateShelfItem(nIndex, nInitialLeftStock);
+                    //! Update shelf remaining stock
+                    m_pShelvesModel->UpdateShelfItemModel(m_arrBLECharacteristics.at(idx).value().at(0), m_arrBLECharacteristics.at(idx).value().at(1));
                 }
             }
 
@@ -392,10 +393,13 @@ void BLEController::BLEServiceError(QLowEnergyService::ServiceError error)
 void BLEController::BLECharacteristicValueChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 // ===================================================
 {
-    if (characteristic.uuid().toString() != BLE_HEADER_CHARACTERISTIC)
+    qDebug() << "Changed characteristic: " << characteristic.uuid().toString();
+    qDebug() << "Value: " << newValue;
+
+    if (characteristic.uuid().toString() == BLE_REMAINING_STOCK_CHAR && characteristic.isValid())
     {
-        //! Update shelf
-        m_pShelvesModel->UpdateShelfItem(newValue.at(0), newValue.at(1));
+        //! Update shelf remaining stock
+        m_pShelvesModel->UpdateShelfItemModel(newValue.at(0), newValue.at(1));
     }
 }
 
@@ -403,11 +407,7 @@ void BLEController::BLECharacteristicValueChanged(const QLowEnergyCharacteristic
 void BLEController::BLEReadCharacteristicValue(const QLowEnergyCharacteristic &info, const QByteArray &value)
 // ===================================================
 {
-    qDebug() << "char value: " << value;
-
-    if (info.isValid())
-    {
-        //m_pCurrentBLEService->readCharacteristic(m_arrBLECharacteristics.at(0));
-    }
+    Q_UNUSED(value)
+    Q_UNUSED(info)
 }
 // ===================================================

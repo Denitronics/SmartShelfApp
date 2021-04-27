@@ -4,7 +4,7 @@
 #include <QStringList>
 #include <QDebug>
 #include <QObject>
-#include "shelfitem.h"
+#include "shelfitemmodel.h"
 #include "defines.h"
 
 class ShelvesModel : public QAbstractListModel
@@ -30,8 +30,8 @@ public:
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
-    void AddShelfItem(ShelfType eShelfType, quint8 nInitialStock);
-    void UpdateShelfItem(quint8 index, quint8 nLeftStock);
+    void AddShelfItemModel(ShelfType eShelfType, quint8 nInitialStock, quint8 nLeftStock);
+    void UpdateShelfItemModel(quint8 index, quint8 nLeftStock);
 
     void ClearModel();
 
@@ -39,6 +39,6 @@ public:
     QHash<int, QByteArray> roleNames() const;
 
     private:
-    QList<ShelfItem*> m_arrSmartShelvesItems;
+    QList<ShelfItemModel*> m_arrSmartShelvesItemsModels;
 };
 

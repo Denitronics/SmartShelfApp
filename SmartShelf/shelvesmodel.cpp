@@ -6,11 +6,11 @@ ShelvesModel::ShelvesModel(QObject* parent) : QAbstractListModel(parent)
     // Initialize the model
     beginResetModel();
 
-    for (ShelfItem* pItem : qAsConst(m_arrSmartShelvesItems))
+    for (ShelfItemModel* pItem : qAsConst(m_arrSmartShelvesItemsModels))
     {
         pItem->deleteLater();
     }
-    m_arrSmartShelvesItems.clear();
+    m_arrSmartShelvesItemsModels.clear();
 
     endResetModel();
 }
@@ -23,67 +23,71 @@ void ShelvesModel::DeclareQML()
 int ShelvesModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return m_arrSmartShelvesItems.count();
+    return m_arrSmartShelvesItemsModels.count();
 }
 
 QVariant ShelvesModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() < 0 || index.row() >= m_arrSmartShelvesItems.count())
+    if (index.row() < 0 || index.row() >= m_arrSmartShelvesItemsModels.count())
     {
         return QVariant();
     }
 
-    ShelfItem* currentShelfItem = m_arrSmartShelvesItems.at(index.row());
+    ShelfItemModel* currentShelfItemModel = m_arrSmartShelvesItemsModels.at(index.row());
 
     if (role == ObjectRole)
     {
-        return QVariant::fromValue(currentShelfItem);
+        return QVariant::fromValue(currentShelfItemModel);
     }
 
     else if (role == SizeRole)
     {
-        return m_arrSmartShelvesItems.size();
+        return m_arrSmartShelvesItemsModels.size();
     }
 
     return QVariant();
 }
 
-void ShelvesModel::AddShelfItem(ShelvesModel::ShelfType eShelfType, quint8 nInitialStock)
+void ShelvesModel::AddShelfItemModel(ShelvesModel::ShelfType eShelfType, quint8 nInitialStock, quint8 nLeftStock)
 {
     Q_UNUSED(nInitialStock);
 
     beginInsertRows(QModelIndex(), 0, 0);
 
-    ShelfItem* pCurrentShelf = new ShelfItem(this);
+    ShelfItemModel* pCurrentShelf = new ShelfItemModel(this->parent());
 
     if (eShelfType == ShelfType::ShelfType_Drink)
     {
         pCurrentShelf->setShelfIcon(SHELF_DRINK_ICON);
+        pCurrentShelf->setShelfName("Drinks");
     }
     else if (eShelfType == ShelfType::ShelfType_Snack)
     {
         pCurrentShelf->setShelfIcon(SHELF_SNACK_ICON);
+        pCurrentShelf->setShelfName("Snacks");
     }
     else
     {
         pCurrentShelf->setShelfIcon(SHELF_UNKNOWN_ICON);
     }
 
-    pCurrentShelf->setInitialStock(nInitialStock);
+    pCurrentShelf->FillModel(nInitialStock, nLeftStock);
 
-    m_arrSmartShelvesItems.insert(m_arrSmartShelvesItems.size(), pCurrentShelf);
+    m_arrSmartShelvesItemsModels.insert(m_arrSmartShelvesItemsModels.size(), pCurrentShelf);
 
     endInsertRows();
 
     emit layoutChanged();
 }
 
-void ShelvesModel::UpdateShelfItem(quint8 index, quint8 nLeftStock)
-{
-    if (index >= 0 && index < m_arrSmartShelvesItems.count())
+void ShelvesModel::UpdateShelfItemModel(quint8 index, quint8 nLeftStock)
+{    
+    if (index >= 0 && index < m_arrSmartShelvesItemsModels.count())
     {
+        ShelfItemModel* pUpdatedShelf = m_arrSmartShelvesItemsModels.at(index);
+
         beginResetModel();
-        m_arrSmartShelvesItems.at(index)->setLeftStock(nLeftStock);
+        pUpdatedShelf->UpdateModel(nLeftStock);
         endResetModel();
 
         qDebug() << "Item: " << index << "Left stock: " << nLeftStock;
@@ -94,11 +98,11 @@ void ShelvesModel::ClearModel()
 {
     beginResetModel();
 
-    for (ShelfItem* pShelfItem : qAsConst(m_arrSmartShelvesItems))
+    for (ShelfItemModel* pShelfItemModel : qAsConst(m_arrSmartShelvesItemsModels))
     {
-        pShelfItem->deleteLater();
+        pShelfItemModel->deleteLater();
     }
-    m_arrSmartShelvesItems.clear();
+    m_arrSmartShelvesItemsModels.clear();
 
     endResetModel();
 }

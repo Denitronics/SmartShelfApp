@@ -13,7 +13,7 @@
 #include <bledeviceitem.h>
 #include <QTimer>
 #include <shelvesmodel.h>
-#include <shelfitem.h>
+#include <shelfitemmodel.h>
 #include "defines.h"
 
 
