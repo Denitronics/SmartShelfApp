@@ -4,6 +4,7 @@ import QtQuick.Window 2.3
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import Datamodels 1.0
+import QtQuick.Dialogs 1.1
 
 ApplicationWindow {
     id: mainWindow
@@ -19,6 +20,14 @@ ApplicationWindow {
     property string textsColor: "gray"
     property string bordersColor: "gray"
     property int headerFooterSize: height / 15
+
+    Connections {
+        target: bleController
+
+        function onOpenMessageDialog() {
+            messageDialog.open()
+        }
+    }
 
     RowLayout {
         id: menuButtons
@@ -140,6 +149,32 @@ ApplicationWindow {
             text: screenName
             color: textsColor
             font.pointSize: 15
+        }
+    }
+
+    // Used for logging system messages
+    MessageDialog {
+        id: messageDialog
+
+        title: bleController.msgDialogTitle
+        text: bleController.msgDialogText
+        icon: {
+            if (bleController.msgDialogIconType === "Info")
+            {
+                StandardIcon.Information
+            }
+            else if (bleController.msgDialogIconType === "Warning")
+            {
+                StandardIcon.Warning
+            }
+            else if (bleController.msgDialogIconType === "Error")
+            {
+                StandardIcon.Critical
+            }
+        }
+
+        Component.onCompleted: {
+            console.log("Icon: ", icon)
         }
     }
 }

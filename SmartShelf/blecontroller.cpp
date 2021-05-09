@@ -126,6 +126,72 @@ void BLEController::AnalyzeHeaderCharacteristic()
 }
 
 // ===================================================
+void BLEController::DisplayDialogMessage(quint8 nLogType, quint8 nLogMsg)
+// ===================================================
+{
+    bool bOpenMessageDialog = false;
+
+    if (nLogType == LogType::LogType_Info)
+    {
+        setMsgDialogTitle("Information");
+        setMsgDialogIconType("Info");
+
+        if (nLogMsg == LogInfo::Info_SystemOK)
+        {
+            bOpenMessageDialog = false;
+        }
+        else if (nLogMsg == LogInfo::Info_ShelfEmpty)
+        {
+            bOpenMessageDialog = true;
+            setMsgDialogText("Shelf is empty!");
+        }
+    }
+
+    else if (nLogType == LogType::LogType_Warning)
+    {
+        setMsgDialogTitle("Warning");
+        setMsgDialogIconType("Warning");
+
+        if (nLogMsg == LogWarning::Warning_None)
+        {
+            bOpenMessageDialog = false;
+        }
+        else if (nLogMsg == LogWarning::Warning_StockAdded)
+        {
+            bOpenMessageDialog = true;
+            setMsgDialogText("Item added to the shelf!");
+        }
+        else if (nLogMsg == LogWarning::Warning_StockTaken)
+        {
+            bOpenMessageDialog = true;
+            setMsgDialogText("Item removed from the shelf!");
+        }
+    }
+
+    else if (nLogType == LogType::LogType_Error)
+    {
+        setMsgDialogTitle("Error");
+        setMsgDialogIconType("Error");
+
+        if (nLogMsg == LogError::Error_None)
+        {
+            bOpenMessageDialog = false;
+        }
+        else if (nLogMsg == LogError::Error_EEPROM)
+        {
+            bOpenMessageDialog = true;
+            setMsgDialogText("Smart Shelf HW (EEPROM) error!");
+        }
+    }
+
+    if (bOpenMessageDialog)
+    {
+        //! Display system information/warning/error
+        emit openMessageDialog();
+    }
+}
+
+// ===================================================
 void BLEController::BLEAddDevice(const QBluetoothDeviceInfo &info)
 // ===================================================
 {
@@ -259,6 +325,60 @@ void BLEController::setShelvesModel(ShelvesModel *pShelvesModel)
 }
 
 // ===================================================
+void BLEController::setMsgDialogTitle(QString strTitle)
+// ===================================================
+{
+    if (m_strMessageDialogTitle != strTitle)
+    {
+        m_strMessageDialogTitle = strTitle;
+        emit onMsgDialogTitleChanged(m_strMessageDialogTitle);
+    }
+}
+
+// ===================================================
+void BLEController::setMsgDialogText(QString strText)
+// ===================================================
+{
+    if (m_strMessageDialogText != strText)
+    {
+        m_strMessageDialogText = strText;
+        emit onMsgDialogTextChanged(m_strMessageDialogText);
+    }
+}
+
+// ===================================================
+void BLEController::setMsgDialogIconType(QString strIconType)
+// ===================================================
+{
+    if (m_strMessageDialogIconType != strIconType)
+    {
+        m_strMessageDialogIconType = strIconType;
+        emit onMsgDialogIconTypeChanged(m_strMessageDialogIconType);
+    }
+}
+
+// ===================================================
+QString BLEController::msgDialogTitle()
+// ===================================================
+{
+    return m_strMessageDialogTitle;
+}
+
+// ===================================================
+QString BLEController::msgDialogText()
+// ===================================================
+{
+    return m_strMessageDialogText;
+}
+
+// ===================================================
+QString BLEController::msgDialogIconType()
+// ===================================================
+{
+    return m_strMessageDialogIconType;
+}
+
+// ===================================================
 void BLEController::BLEDeviceConnected()
 // ===================================================
 {
@@ -373,7 +493,15 @@ void BLEController::BLEServiceDetailsDiscovered(QLowEnergyService::ServiceState 
                 if (m_arrBLECharacteristics.at(idx).uuid().toString() == BLE_REMAINING_STOCK_CHAR && m_arrBLECharacteristics.at(idx).isValid())
                 {
                     //! Update shelf remaining stock
-                    m_pShelvesModel->UpdateShelfItemModel(m_arrBLECharacteristics.at(idx).value().at(0), m_arrBLECharacteristics.at(idx).value().at(1));
+                    m_pShelvesModel->UpdateShelfItemModel(0, m_arrBLECharacteristics.at(idx).value().at(0));
+                }
+
+                else if (m_arrBLECharacteristics.at(idx).uuid().toString() == BLE_LOG_MSG_CHAR && m_arrBLECharacteristics.at(idx).isValid())
+                {
+                    quint8 nLogType = m_arrBLECharacteristics.at(idx).value().at(0);
+                    quint8 nLogMsg  = m_arrBLECharacteristics.at(idx).value().at(1);
+
+                    DisplayDialogMessage(nLogType, nLogMsg);
                 }
             }
 
@@ -399,7 +527,15 @@ void BLEController::BLECharacteristicValueChanged(const QLowEnergyCharacteristic
     if (characteristic.uuid().toString() == BLE_REMAINING_STOCK_CHAR && characteristic.isValid())
     {
         //! Update shelf remaining stock
-        m_pShelvesModel->UpdateShelfItemModel(newValue.at(0), newValue.at(1));
+        m_pShelvesModel->UpdateShelfItemModel(0, newValue.at(0));
+    }
+
+    else if (characteristic.uuid().toString() == BLE_LOG_MSG_CHAR && characteristic.isValid())
+    {
+        quint8 nLogType = newValue.at(0);
+        quint8 nLogMsg  = newValue.at(1);
+
+        DisplayDialogMessage(nLogType, nLogMsg);
     }
 }
 

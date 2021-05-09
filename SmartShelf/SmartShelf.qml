@@ -70,7 +70,7 @@ Item {
                                     anchors.fill: parent
                                     horizontalAlignment: Text.AlignHCenter
                                     verticalAlignment: Text.AlignVCenter
-                                    text: currentBLEDevice.bleDeviceName + ":\r\n "+currentBLEDevice.bleDeviceAddress
+                                    text: currentBLEDevice.bleDeviceName + "\r\n "+currentBLEDevice.bleDeviceAddress
                                     font.bold: true
                                     font.pointSize: 12
 

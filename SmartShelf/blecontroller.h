@@ -11,10 +11,14 @@
 #include <QBluetoothServiceInfo>
 #include <bledevicesmodel.h>
 #include <bledeviceitem.h>
+#include <QQmlApplicationEngine>
+#include <QQmlComponent>
+#include <QMessageBox>
 #include <QTimer>
 #include <shelvesmodel.h>
 #include <shelfitemmodel.h>
 #include "defines.h"
+
 
 
 class BLEController : public QObject
@@ -29,6 +33,10 @@ public:
     Q_PROPERTY(quint8 shelfScreenActiveLayout READ shelfScreenActiveLayout WRITE setShelfScreenActiveLayout NOTIFY shelfScreenActiveLayoutChanged)
     Q_PROPERTY(BLEDevicesModel* bleDevicesModel READ getBLEDevicesModel WRITE setBLEDevicesModel NOTIFY onBLEDevicesModelChanged)
     Q_PROPERTY(ShelvesModel* shelvesModel READ shelvesModel NOTIFY shelvesModelChanged)
+    Q_PROPERTY(QString msgDialogTitle READ msgDialogTitle NOTIFY onMsgDialogTitleChanged)
+    Q_PROPERTY(QString msgDialogText READ msgDialogText NOTIFY onMsgDialogTextChanged)
+    Q_PROPERTY(QString msgDialogIconType READ msgDialogIconType NOTIFY onMsgDialogIconTypeChanged)
+
 
     Q_INVOKABLE void searchForBLEDevices();
     Q_INVOKABLE void stopSearchForBLEDevices();
@@ -36,7 +44,35 @@ public:
     Q_INVOKABLE void disconnectFromBLEDevice();
 
 private:
+
+    enum LogType
+    {
+        LogType_Info    = 0,
+        LogType_Warning = 1,
+        LogType_Error   = 2
+    };
+
+    enum LogInfo
+    {
+        Info_SystemOK   = 0,
+        Info_ShelfEmpty = 1
+    };
+
+    enum LogWarning
+    {
+        Warning_None         = 0,
+        Warning_StockTaken   = 1,
+        Warning_StockAdded   = 2
+    };
+
+    enum LogError
+    {
+        Error_None   = 0,
+        Error_EEPROM = 1
+    };
+
     void AnalyzeHeaderCharacteristic();
+    void DisplayDialogMessage(quint8 nLogType, quint8 nLogMsg);
 
     // Data models
     BLEDevicesModel* m_pBLEDevicesModel = nullptr;
@@ -50,10 +86,15 @@ private:
     QLowEnergyService* m_pCurrentBLEService = nullptr;
     QList<QLowEnergyService *> m_arrBLEServices;
     QList<QLowEnergyCharacteristic> m_arrBLECharacteristics;
+    QObject* m_pMessageBox = nullptr;
 
     bool m_bSearchDevicesIconVisible = false;
     bool m_bSearchInProcess          = false;
     quint8 m_nShelfScreenActiveLayout = SHELF_SCREEN_LAYOUT_SEARCH_BLE;
+
+    QString m_strMessageDialogTitle;
+    QString m_strMessageDialogText;
+    QString m_strMessageDialogIconType = "Error";
 
 private slots:
 
@@ -72,6 +113,14 @@ private slots:
     ShelvesModel* shelvesModel();
     void setShelvesModel(ShelvesModel* pShelvesModel);
 
+    void setMsgDialogTitle(QString strTitle);
+    void setMsgDialogText(QString strText);
+    void setMsgDialogIconType(QString strIconType);
+
+    QString msgDialogTitle();
+    QString msgDialogText();
+    QString msgDialogIconType();
+
     void BLEDeviceConnected();
     void BLEDeviceDisconnected();
     void BLEDeviceErrorReceived(QLowEnergyController::Error eError);
@@ -81,7 +130,6 @@ private slots:
     // QLowEnergyService related
     void BLEServiceDetailsDiscovered(QLowEnergyService::ServiceState newState);
     void BLEServiceError(QLowEnergyService::ServiceError error);
-
     void BLECharacteristicValueChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void BLEReadCharacteristicValue(const QLowEnergyCharacteristic &info, const QByteArray &value);
 
@@ -91,6 +139,10 @@ signals:
     void shelvesModelChanged();
     void shelfScreenActiveLayoutChanged();
     void searchingInProcessChanged();
+    void onMsgDialogTitleChanged(QString strTitle);
+    void onMsgDialogTextChanged(QString strText);
+    void onMsgDialogIconTypeChanged(QString eIconType);
+    void openMessageDialog();
 };
 
 #endif // BLECONTROLLER_H

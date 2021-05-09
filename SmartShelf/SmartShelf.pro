@@ -1,4 +1,4 @@
-QT += quick bluetooth
+QT += quick bluetooth widgets
 
 CONFIG += c++11
 QML_IMPORT_NAME = DataModels
